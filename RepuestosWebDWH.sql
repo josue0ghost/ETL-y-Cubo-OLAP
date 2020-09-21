@@ -23,7 +23,6 @@ GO
 */
 
 --Cadenas
-
 	--Tipo para cadenas largas
 	CREATE TYPE [UDT_VarcharLargo] FROM VARCHAR(600)
 	GO
@@ -41,7 +40,6 @@ GO
 	GO
 
 --Decimal
-
 	--Tipo Decimal 6,2
 	CREATE TYPE [UDT_Decimal6.2] FROM DECIMAL(6,2)
 	GO
@@ -49,17 +47,6 @@ GO
 	--Tipo Decimal 5,2
 	CREATE TYPE [UDT_Decimal5.2] FROM DECIMAL(5,2)
 	GO
-
---Fechas
-	CREATE TYPE [UDT_DateTime] FROM DATETIME
-	GO
-
--- Schemas
-    CREATE SCHEMA Fact
-    GO
-
-    CREATE SCHEMA Dimension
-    GO
 
 -- DATA TYPES PARA LLAVES SUBROGADAS
     --Tipo para SK entero: Surrogate Key
@@ -70,45 +57,117 @@ GO
     CREATE TYPE [UDT_PK] FROM INT
     GO
 
+--Fechas
+	CREATE TYPE [UDT_DateTime] FROM DATETIME
+	GO
+
+-- ********************** Schemas **********************
+    CREATE SCHEMA Fact
+    GO
+
+    CREATE SCHEMA Dimension
+    GO
+
 -- ********************************************** MODELO ESTRELLA **********************************************
 -- Dimensiones
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 	CREATE TABLE Dimension.Fecha(
-		DateKey INT PRIMARY KEY
-	)
+		DateKey INT NOT NULL
+
+		PRIMARY KEY CLUSTERED
+		(
+			DateKey ASC
+		) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+				ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	)ON [PRIMARY]
+	GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+	CREATE TABLE Dimension.Cliente(
+		SK_Cliente [UDT_SK] IDENTITY(1,1) NOT NULL,
+		ID_Cliente [UDT_SK] NULL
+		PRIMARY KEY CLUSTERED
+		(
+			SK_Cliente ASC
+		) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+				ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	)ON [PRIMARY]
 	GO
 
-	CREATE TABLE Dimension.ClienteE(
-		SK_Cliente [UDT_SK] PRIMARY KEY IDENTITY
-	)
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+	CREATE TABLE Dimension.Ciudad(
+		SK_Ciudad [UDT_SK] IDENTITY(1,1) NOT NULL,
+		ID_Ciudad [UDT_SK] NULL
+		PRIMARY KEY CLUSTERED
+		(
+			SK_Ciudad ASC
+		) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+				ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	)ON [PRIMARY]
 	GO
 
-	CREATE TABLE Dimension.CiudadE(
-		SK_Ciudad [UDT_SK] PRIMARY KEY IDENTITY
-	)
-	GO
-
-	CREATE TABLE Dimension.ParteE(
-		SK_Parte [UDT_SK] PRIMARY KEY IDENTITY
-	)
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+	CREATE TABLE Dimension.Parte(
+		SK_Parte [UDT_SK] IDENTITY(1,1) NOT NULL,
+		ID_Parte [UDT_SK] NULL
+		PRIMARY KEY CLUSTERED
+		(
+			SK_Parte ASC
+		) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+				ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	)ON [PRIMARY]
 	GO
 
 -- Hechos
-	CREATE TABLE Fact.OrdenesE(
-		SK_Orden [UDT_SK] PRIMARY KEY IDENTITY,
-		SK_Cliente [UDT_SK] REFERENCES Dimension.ClienteE(SK_Cliente),
-		SK_Ciudad [UDT_SK] REFERENCES Dimension.CiudadE(SK_Ciudad),
-		SK_Parte [UDT_SK] REFERENCES Dimension.ParteE(SK_Parte),
-		DateKey INT REFERENCES Dimension.Fecha(DateKey)
-	)
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+	CREATE TABLE Fact.Ordenes(
+		SK_Orden [UDT_SK] IDENTITY(1,1) NOT NULL,
+		SK_Cliente [UDT_SK] NULL,
+		SK_Ciudad [UDT_SK] NULL,
+		SK_Parte [UDT_SK] NULL,
+		DateKey INT NULL,
+		ID_Orden [UDT_SK] NULL
+		PRIMARY KEY CLUSTERED
+		(
+			SK_Orden ASC
+		) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+				ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	)ON [PRIMARY]
 
--- Transformacion en modelo logico
+-- ********************* Transformacion en modelo logico *********************
 	-- Hecho
-	ALTER TABLE Fact.OrdenesE ADD ID_TotalOrdeb [UDT_PK]
-	ALTER TABLE Fact.OrdenesE ADD ID_Status [UDT_PK]
-	ALTER TABLE Fact.OrdenesE ADD FechaOrden [UDT_DateTime]
-	ALTER TABLE Fact.OrdenesE ADD Descuento [UDT_Decimal6.2]
-	ALTER TABLE Fact.OrdenesE ADD PorcentajeDescuento [UDT_Decimal6.2]
-	ALTER TABLE Fact.OrdenesE ADD ID_Cantidad [UDT_PK]
+	ALTER TABLE Fact.Ordenes ADD ID_TotalOrdeb [UDT_PK]
+	ALTER TABLE Fact.Ordenes ADD ID_Status [UDT_PK]
+	ALTER TABLE Fact.Ordenes ADD FechaOrden [UDT_DateTime]
+	ALTER TABLE Fact.Ordenes ADD Descuento [UDT_Decimal6.2]
+	ALTER TABLE Fact.Ordenes ADD PorcentajeDescuento [UDT_Decimal6.2]
+	ALTER TABLE Fact.Ordenes ADD ID_Cantidad [UDT_PK]
+	ALTER TABLE Fact.Ordenes  WITH CHECK ADD FOREIGN KEY([DateKey])
+		REFERENCES Dimension.Fecha ([DateKey])
+	GO
+	ALTER TABLE Fact.Ordenes  WITH CHECK ADD FOREIGN KEY([SK_Cliente])
+		REFERENCES Dimension.Cliente ([SK_Cliente])
+	GO
+	ALTER TABLE Fact.Ordenes  WITH CHECK ADD FOREIGN KEY([SK_Ciudad])
+		REFERENCES Dimension.Ciudad ([SK_Ciudad])
+	GO
+	ALTER TABLE Fact.Ordenes  WITH CHECK ADD FOREIGN KEY([SK_Parte])
+		REFERENCES Dimension.Parte ([SK_Parte])
+	GO
 
 	--Dimension Fecha
 	ALTER TABLE Dimension.Fecha ADD [Date] DATE NOT NULL
@@ -134,25 +193,67 @@ GO
     ALTER TABLE Dimension.Fecha ADD IsWeekend BIT NOT NULL
 
 	--Dimension Cliente
-	ALTER TABLE Dimension.ClienteE ADD Nombre [UDT_VarcharCorto]
-	ALTER TABLE Dimension.ClienteE ADD Apellido [UDT_VarcharCorto]
-	ALTER TABLE Dimension.ClienteE ADD Genero [UDT_UnCaracter]
-	ALTER TABLE Dimension.ClienteE ADD Correo [UDT_VarcharMediano]
-	ALTER TABLE Dimension.ClienteE ADD FechaNacimiento [UDT_DateTime]
+	ALTER TABLE Dimension.Cliente ADD Nombre [UDT_VarcharCorto]
+	ALTER TABLE Dimension.Cliente ADD Apellido [UDT_VarcharCorto]
+	ALTER TABLE Dimension.Cliente ADD Genero [UDT_UnCaracter]
+	ALTER TABLE Dimension.Cliente ADD Correo_Electronico [UDT_VarcharMediano]
+	ALTER TABLE Dimension.Cliente ADD FechaNacimiento [UDT_DateTime]
 
 	--Dimension Ciudad
-	ALTER TABLE Dimension.CiudadE ADD Nombre [UDT_VarcharCorto]
-	ALTER TABLE Dimension.CiudadE ADD CodigoPostal [UDT_PK]
-	ALTER TABLE Dimension.CiudadE ADD ID_Region [UDT_PK]
-	ALTER TABLE Dimension.CiudadE ADD ID_Pais [UDT_PK]
+	ALTER TABLE Dimension.Ciudad ADD Nombre [UDT_VarcharCorto]
+	ALTER TABLE Dimension.Ciudad ADD CodigoPostal [UDT_PK]
+	ALTER TABLE Dimension.Ciudad ADD ID_Region [UDT_PK]
+	ALTER TABLE Dimension.Ciudad ADD ID_Pais [UDT_PK]
 
 	--Dimension Parte
-	ALTER TABLE Dimension.ParteE ADD Nombre [UDT_VarcharCorto]
-	ALTER TABLE Dimension.ParteE ADD Precio [UDT_Decimal6.2]
-	ALTER TABLE Dimension.ParteE ADD ID_Categoria [UDT_PK]
-	ALTER TABLE Dimension.ParteE ADD ID_Linea [UDT_PK]
+	ALTER TABLE Dimension.Parte ADD Nombre [UDT_VarcharCorto]
+	ALTER TABLE Dimension.Parte ADD Precio [UDT_Decimal6.2]
+	ALTER TABLE Dimension.Parte ADD ID_Categoria [UDT_PK]
+	ALTER TABLE Dimension.Parte ADD ID_Linea [UDT_PK]
+	
+	-- Columnas SCD Tipo 2
+	ALTER TABLE Dimension.Cliente	ADD FechaInicioValidez DATETIME NOT NULL DEFAULT(GETDATE())
+	ALTER TABLE Dimension.Ciudad	ADD FechaInicioValidez DATETIME NOT NULL DEFAULT(GETDATE())
+	ALTER TABLE Dimension.Parte		ADD FechaInicioValidez DATETIME NOT NULL DEFAULT(GETDATE())
+
+	ALTER TABLE Dimension.Cliente	ADD FechaFinValidez DATETIME
+	ALTER TABLE Dimension.Ciudad	ADD FechaFinValidez DATETIME
+	ALTER TABLE Dimension.Parte		ADD FechaFinValidez DATETIME
+
+	-- Campos de Auditoría
+	ALTER TABLE Dimension.Cliente	ADD Fecha_Creacion DATETIME NOT NULL DEFAULT(GETDATE())
+	ALTER TABLE Dimension.Ciudad	ADD Fecha_Creacion DATETIME NOT NULL DEFAULT(GETDATE())
+	ALTER TABLE Dimension.Parte		ADD Fecha_Creacion DATETIME NOT NULL DEFAULT(GETDATE())
+	ALTER TABLE Fact.Ordenes		ADD Fecha_Creacion DATETIME NOT NULL DEFAULT(GETDATE())
+
+	ALTER TABLE Dimension.Cliente	ADD Fecha_Modificacion DATETIME
+	ALTER TABLE Dimension.Ciudad	ADD Fecha_Modificacion DATETIME
+	ALTER TABLE Dimension.Parte		ADD Fecha_Modificacion DATETIME
+	ALTER TABLE Fact.Ordenes		ADD Fecha_Modificacion DATETIME
+
+	ALTER TABLE Dimension.Cliente	ADD Usuario_Creacion NVARCHAR(100) NOT NULL DEFAULT(SUSER_NAME())
+	ALTER TABLE Dimension.Ciudad	ADD Usuario_Creacion NVARCHAR(100) NOT NULL DEFAULT(SUSER_NAME())
+	ALTER TABLE Dimension.Parte		ADD Usuario_Creacion NVARCHAR(100) NOT NULL DEFAULT(SUSER_NAME())
+	ALTER TABLE Fact.Ordenes		ADD Usuario_Creacion NVARCHAR(100) NOT NULL DEFAULT(SUSER_NAME())
+
+	ALTER TABLE Dimension.Cliente	ADD Usuario_Modificacion NVARCHAR(100)
+	ALTER TABLE Dimension.Ciudad	ADD Usuario_Modificacion NVARCHAR(100)
+	ALTER TABLE Dimension.Parte		ADD Usuario_Modificacion NVARCHAR(100)
+	ALTER TABLE Fact.Ordenes		ADD Usuario_Modificacion NVARCHAR(100)
+
+	-- Campos de linaje
+	ALTER TABLE Dimension.Cliente	ADD ID_Batch VARCHAR(50)
+	ALTER TABLE Dimension.Ciudad	ADD ID_Batch VARCHAR(50)
+	ALTER TABLE Dimension.Parte		ADD ID_Batch VARCHAR(50)
+	ALTER TABLE Fact.Ordenes		ADD ID_Batch VARCHAR(50)
+
+	ALTER TABLE Dimension.Cliente	ADD ID_SourceSystem VARCHAR(50)
+	ALTER TABLE Dimension.Ciudad	ADD ID_SourceSystem VARCHAR(50)
+	ALTER TABLE Dimension.Parte		ADD ID_SourceSystem VARCHAR(50)
+	ALTER TABLE Fact.Ordenes		ADD ID_SourceSystem VARCHAR(50)
 
 -- ********************************************** MODELO COPO DE NIEVE **********************************************
+	/*
 	--Dimensiones
 	CREATE TABLE Dimension.ClienteCN(
 		SK_Cliente [UDT_SK] PRIMARY KEY IDENTITY
@@ -244,6 +345,7 @@ GO
 	--Dimension Linea
 	ALTER TABLE Dimension.Linea ADD Nombre [UDT_VarcharCorto]
 	ALTER TABLE Dimension.Linea ADD Descripcion [UDT_VarcharMediano]
+	*/
 
 /*
 Que columnas son Medidas y de que tipo es cada columna?

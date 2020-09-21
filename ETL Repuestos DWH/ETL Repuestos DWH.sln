@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{159641D6-6404-4A2A-AE62-294DE0FE8301}") = "ETL Repuestos DWH", "ETL Repuestos DWH.dtproj", "{860226A3-CE61-4874-8DD0-CEF103EE82C8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Development|Default = Development|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{860226A3-CE61-4874-8DD0-CEF103EE82C8}.Development|Default.ActiveCfg = Development
+		{860226A3-CE61-4874-8DD0-CEF103EE82C8}.Development|Default.Build.0 = Development
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FD6F57BB-1F7A-4240-8775-156258360C42}
+	EndGlobalSection
+EndGlobal
